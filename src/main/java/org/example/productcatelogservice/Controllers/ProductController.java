@@ -24,25 +24,25 @@ public class ProductController {
     private IProductService productService;
 
     @GetMapping()
-    public List<ProductDto> getAllProducts() {
+    public List<ProductDto> getAllProducts()
+    {
         // Implementation to retrieve all products
-        ProductDto productDto = new ProductDto();
-        productDto.setId(2L);
-        productDto.setName("Product 2");
-        List<ProductDto>  productList = new ArrayList<>();
-        productList.add(productDto);
-        return  productList;
-
-     
+        List<Product> products = productService.getAllProducts();
+        List<ProductDto> productDtos = new ArrayList<>();
+        for(Product product : products) {
+            ProductDto productDto = from(product);
+            productDtos.add(productDto);
+        }
+        return productDtos;
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<ProductDto> getProductById(@PathVariable("id") Long productId) {
+    public ResponseEntity<ProductDto> getProductById(@PathVariable("id") Long productId)
+    {
         if (productId <= 0) {
             //return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
             throw new IllegalArgumentException("Please pass positive product Id");
         }
-
         Product product = productService.getProductById(productId);
         if (product == null) {
             //return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -51,8 +51,7 @@ public class ProductController {
         ProductDto productDto = from(product);
         return new ResponseEntity<>(productDto,HttpStatus.OK);
     }
-
-
+    
     @PutMapping("{id}")
     public ResponseEntity<ProductDto> replaceProduct(@PathVariable Long id, @RequestBody ProductDto productDto){
         if(id <=  0){
@@ -62,25 +61,34 @@ public class ProductController {
         Product inputProduct = from(productDto);
         // service layer call
         Product outputProduct = productService.replaceProduct(id, inputProduct);
-
         if(outputProduct == null){
             new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-
         return new ResponseEntity<>(from(outputProduct), HttpStatus.OK);
-
     }
-
 
     @DeleteMapping("{id}")      // To Do
+    public ResponseEntity<String> deleteProduct(@PathVariable Long id)
+    {
+          if(id <= 0) {
+              return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+          }
+           String response = productService.deleteProduct(id);
+          return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
     @PostMapping()
-    public  ProductDto createProduct(@RequestBody ProductDto productDto) {         // To Do
-        return productDto;
-
-        
+    public  ResponseEntity<ProductDto> createProduct(@RequestBody ProductDto productDto)
+    {
+         Product product = from(productDto);
+       Product productResponse = productService.createProduct(product);
+       if(productResponse == null) {
+           return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+       }
+       return new ResponseEntity<>(from(productResponse), HttpStatus.CREATED);
     }
+
+
     private Product from(ProductDto productDto) {
         Product product = new Product();
         product.setId(productDto.getId());

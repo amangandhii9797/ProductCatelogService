@@ -14,6 +14,8 @@ public interface IProductService {
     Product createProduct(Product product);
 
     Product replaceProduct(Long id, Product product);
+
+    String deleteProduct(Long id);
     
     /*
     Steps to call any Rest API

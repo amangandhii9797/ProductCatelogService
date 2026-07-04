@@ -23,14 +23,7 @@ import java.util.List;
 
 @Service
 public class ProductService implements IProductService {
-/*
-    private final RestTemplate restTemplate;
 
-    @Autowired
-    public ProductService(RestTemplateBuilder restTemplateBuilder) {
-
-        this.restTemplate = restTemplateBuilder.build();
-    }*/
 
     @Autowired
     private RestTemplateBuilder restTemplateBuilder;
@@ -38,50 +31,38 @@ public class ProductService implements IProductService {
     @Override
     public Product getProductById(Long id) {
 
-      /*
-        RestTemplate restTemplate = restTemplateBuilder.build();
 
-       ResponseEntity<FakeStoreProductDto> fakeStoreProductDtoResponseEntity =
-                restTemplate.getForEntity("https://fakestoreapi.com/products/{id}",FakeStoreProductDto.class,id);
-
-                ->  replaced with our custom genericRequestEntity method
-       */
         ResponseEntity<FakeStoreProductDto> fakeStoreProductDtoResponseEntity =
                 genericRequestForEntity(HttpMethod.GET,"https://fakestoreapi.com/products/{id}", null,
                         FakeStoreProductDto.class,id);
-       /* if(fakeStoreProductDtoResponseEntity.hasBody() &&
-                fakeStoreProductDtoResponseEntity.getStatusCode().is2xxSuccessful()) {
-            return from(fakeStoreProductDtoResponseEntity.getBody());
-             } else {
-            System.out.println(fakeStoreProductDtoResponseEntity.getStatusCode());
-        }*/
+
         if (validateFakeStoreResponse(fakeStoreProductDtoResponseEntity)) {
             return from(fakeStoreProductDtoResponseEntity.getBody());
         }
         return null;
     }
 
+    @Override
+    public Product createProduct(Product product) {
+
+       ResponseEntity<FakeStoreProductDto> fakeStoreProductDtoResponseEntity =
+                genericRequestForEntity(HttpMethod.POST,"https://fakestoreapi.com/products", from(product),FakeStoreProductDto.class);
+
+        if (validateFakeStoreResponse(fakeStoreProductDtoResponseEntity)) {
+            return from(fakeStoreProductDtoResponseEntity.getBody());
+        }
+        return null;
+    }
 
     public Product replaceProduct(Long id, Product inputProduct){
         RestTemplate restTemplate = restTemplateBuilder.build();
 
        ResponseEntity<FakeStoreProductDto> fakeStoreProductDtoResponseEntity =
-             /*  putForEntity(HttpMethod"https://fakestoreapi.com/products/{id}", from(inputProduct),
-                                                                FakeStoreProductDto.class, id);
 
-                                                                */
                genericRequestForEntity(HttpMethod.PUT,"https://fakestoreapi.com/products/{id}", from(inputProduct),
                        FakeStoreProductDto.class, id);
 
-       /* if(fakeStoreProductDtoResponseEntity.hasBody() &&
-                fakeStoreProductDtoResponseEntity.getStatusCode().is2xxSuccessful()) {
-            return from(fakeStoreProductDtoResponseEntity.getBody());
-        } else {
-            System.out.println(fakeStoreProductDtoResponseEntity.getStatusCode());
-        }
 
-        Replaced with validateFakeStoreResponse method
-        */
 
         if (validateFakeStoreResponse(fakeStoreProductDtoResponseEntity)) {
             return from(fakeStoreProductDtoResponseEntity.getBody());
@@ -89,16 +70,18 @@ public class ProductService implements IProductService {
         return null;
     }                                   
 
-   /* As we didn't have any method for put in Rest Template class, we just copied and modified an existing method
-    private <T> ResponseEntity<T> putForEntity( String url, @Nullable Object request, Class<T> responseType, Object... uriVariables) throws RestClientException {
+    public String deleteProduct(Long id){
         RestTemplate restTemplate = restTemplateBuilder.build();
-        RequestCallback requestCallback = restTemplate.httpEntityCallback(request, responseType);
-        ResponseExtractor<ResponseEntity<T>> responseExtractor = restTemplate.responseEntityExtractor(responseType);
-        return restTemplate.execute(url, HttpMethod.PUT, requestCallback, responseExtractor, uriVariables);
+        ResponseEntity<Void> responseEntity = genericRequestForEntity(HttpMethod.DELETE,"https://fakestoreapi.com/products/{id}", null,
+                Void.class, id);
+        if (responseEntity.getStatusCode().is2xxSuccessful()) {
+            return "Delete Successfully";
+        } else {
+            System.out.println(responseEntity.getStatusCode());
+            return "Delete Failed";
+        }
     }
 
-    Let's make this method generic to be used for all CRUD operations.
-    */
 
     private <T> ResponseEntity<T> genericRequestForEntity(HttpMethod httpMethod, String url, @Nullable Object request, Class<T> responseType, Object... uriVariables) throws RestClientException {
         RestTemplate restTemplate = restTemplateBuilder.build();
@@ -111,7 +94,7 @@ public class ProductService implements IProductService {
     private Boolean validateFakeStoreResponse(ResponseEntity<FakeStoreProductDto>
                                                       fakeStoreProductDtoResponseEntity) {
         if (fakeStoreProductDtoResponseEntity.hasBody() &&
-                fakeStoreProductDtoResponseEntity.getStatusCode().equals(HttpStatusCode.valueOf(200))) {
+                fakeStoreProductDtoResponseEntity.getStatusCode().is2xxSuccessful()) {   // validating against all 2XX response
             return true;
         } else {
             System.out.println(fakeStoreProductDtoResponseEntity.getStatusCode());
@@ -124,10 +107,7 @@ public class ProductService implements IProductService {
         return List.of();
     }
 
-    @Override
-    public Product createProduct(Product product) {
-        return null;
-    }
+
 
 
 
