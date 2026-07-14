@@ -18,10 +18,10 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 
 
-import java.util.List;                                                                          
+import java.util.List;
 
 
-@Service
+@Service("fkps")
 public class ProductService implements IProductService {
 
 

@@ -1,0 +1,34 @@
+FetchType        FetchMode          Result
+
+LAZY             SELECT             Asked For Products - Queries - 2 select queries
+                                    Not Asked For Products - Queries - 1 select query
+
+
+EAGER            SELECT             Asked For Products - Queries - 2 select
+                                    Not Asked For Products - Queries - 2 select
+
+
+
+LAZY             JOIN               Asked For Products - Queries - 1 join
+                                    Not Asked For Products - Queries - 1 join
+
+                                       FetchType.EAGER is a JPA standard that defines when data is loaded (immediately).
+                                       
+
+                                       @Fetch(FetchMode.JOIN)
+                                       is a Hibernate-specific annotation that defines how data is loaded (via an SQL Join).
+                                       It automatically forces the relationship to be EAGER, overriding any FetchType.LAZY you have set.
+
+
+EAGER            JOIN               Asked For Products - Queries - 1 join
+                                    Not Asked For Products - Queries - 1 join
+
+
+
+LAZY             SUBSELECT           Asked For Products - Queries - 2 select
+                                     Not Asked For Products - Queries - 1 select
+
+
+
+EAGER            SUBSELECT          Asked For Products - Queries - 2 select
+                                    Not Asked For Products - Queries - 2 select

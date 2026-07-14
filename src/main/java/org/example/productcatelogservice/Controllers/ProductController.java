@@ -21,6 +21,7 @@ import java.util.List;
 public class ProductController {
 
     @Autowired
+    //@Qualifier("fkps")
     private IProductService productService;
 
     @GetMapping()
