@@ -90,7 +90,7 @@ public class ProductController {
     }
 
 
-    private Product from(ProductDto productDto) {
+    public Product from(ProductDto productDto) {
         Product product = new Product();
         product.setId(productDto.getId());
         product.setName(productDto.getName());
@@ -106,7 +106,7 @@ public class ProductController {
         return product;
     }
 
-    private ProductDto from(Product product) {
+    public ProductDto from(Product product) {
         ProductDto productDto = new ProductDto();
         productDto.setName(product.getName());
         productDto.setId(product.getId());

@@ -10,12 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.ResponseEntity;
-
 import static org.junit.jupiter.api.Assertions.*;
         import static org.mockito.Mockito.when;
 
@@ -26,20 +20,22 @@ class ProductControllerTest {
     private ProductController productController;
 
     @MockBean
-    private IProductService productService;
+    private IProductService productService;   // I will mock the product service object using MockBean
 
     @Test
-    public void TestGetProductById_WithPositiveProductId_ReturnsProductSuccessfully()
+    public void TestGetProductById_WithPositiveProductId_ReturnsProductSuccessfully()   // name of the test should be very clear 
     {
         //Arrange
         Long id = 2L;
         Product product = new Product();
         product.setId(id);
         product.setName("Iphone");
-        when(productService.getProductById(id)).thenReturn(product);
+        when(productService.getProductById(id)).thenReturn(product);   // ->   defining the behaviour of the mocked productService object, when getProductById is called with id=2L,
+        // it will return the product object created above
 
         //Act
-        ResponseEntity<ProductDto> productDtoResponseEntity =  productController.getProductById(id);
+        ResponseEntity<ProductDto> productDtoResponseEntity =  productController.getProductById(id);    // -> this will call the actual controller method
+        // and when it goes inside, I have a mocked productService object for which behaviour have been defined
 
 
         //Assert
@@ -77,15 +73,101 @@ class ProductControllerTest {
 
         assertEquals("Product not available", exception.getMessage());
 
-        /*
-        * productId is a Long (an object), but <= requires a primitive comparison, so Java auto-unboxes it: productId.longValue() <= 0. When productId is null, calling .longValue() on it throws a NullPointerException — but this NPE has no message (null), not "Product not available".
-So the sequence for each case is:
-5L passed in:
-
-5L <= 0 → false, no exception here
-productService.getProductById(5L) → returns null (unstubbed mock)
-product == null → true → throws new NullPointerException("Product not available") ✅ matches your assertion, test passes
-        *
-        * */
     }
+
+    @Test
+    public void testDeleteProductById_WithPositveProductId_ReturnsDeleteSuccessfully() {
+        // Arrange
+        Long productId = 2L;
+        String expectedResponse = "Delete Successfully";
+        when(productService.deleteProduct(productId)).thenReturn(expectedResponse);
+
+        // Act
+        ResponseEntity<String> responseEntity = productController.deleteProduct(productId);
+
+        // Assert
+        assertNotNull(responseEntity);
+        assertEquals(200, responseEntity.getStatusCodeValue());
+        assertEquals(expectedResponse, responseEntity.getBody());
+    }
+
+
+    @Test
+    public void testDeleteProductById_WithNegativeProductId_ReturnsBadRequest() {
+        // Arrange
+        Long productId = -2L;
+
+        // Act
+        ResponseEntity<String> responseEntity = productController.deleteProduct(productId);
+
+        // Assert
+        assertNotNull(responseEntity);
+        assertEquals(400, responseEntity.getStatusCodeValue());
+        assertNull(responseEntity.getBody());
+    }
+
+
+
+    @Test
+    public void testReplaceProduct_WithPositiveProductId_ReturnsUpdatedProduct() {
+        // Arrange
+        Long productId = 2L;
+        ProductDto inputProductDto = new ProductDto();
+        inputProductDto.setId(productId);
+        inputProductDto.setName("Updated Product");
+
+        Product updatedProduct = new Product();
+        updatedProduct.setId(productId);
+        updatedProduct.setName("Updated Product");
+
+        when(productService.replaceProduct(productId, productController.from(inputProductDto)))
+                .thenReturn(updatedProduct);
+
+
+        // Act
+        ResponseEntity<ProductDto> responseEntity = productController.replaceProduct(productId, inputProductDto);
+
+        // Assert
+        assertNotNull(responseEntity);
+        assertEquals(200, responseEntity.getStatusCodeValue());
+        assertNotNull(responseEntity.getBody());
+        assertEquals(productId, responseEntity.getBody().getId());
+        assertEquals("Updated Product", responseEntity.getBody().getName());
+    }
+
+
+    @Test
+    public void testReplaceProduct_WithNegativeProductId_ReturnsBadRequest() {
+        // Arrange
+        Long productId = -2L;
+        ProductDto inputProductDto = new ProductDto();
+        inputProductDto.setId(productId);
+        inputProductDto.setName("Updated Product");
+
+        // Act
+        ResponseEntity<ProductDto> responseEntity = productController.replaceProduct(productId, inputProductDto);
+
+        // Assert
+        assertNotNull(responseEntity);
+        assertEquals(400, responseEntity.getStatusCodeValue());
+        assertNull(responseEntity.getBody());
+    }
+
+    @Test
+    public void testReplaceProduct_WithNullProductId_ReturnsBadRequest() {
+        // Arrange
+        Long productId = null;
+        ProductDto inputProductDto = new ProductDto();
+        inputProductDto.setId(productId);
+        inputProductDto.setName("Updated Product");
+
+        // Act
+        ResponseEntity<ProductDto> responseEntity = productController.replaceProduct(productId, inputProductDto);
+
+        // Assert
+        assertNotNull(responseEntity);
+        assertEquals(400, responseEntity.getStatusCodeValue());
+        assertNull(responseEntity.getBody());
+    }
+
 }
