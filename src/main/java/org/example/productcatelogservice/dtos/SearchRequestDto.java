@@ -9,6 +9,6 @@ import lombok.Setter;
 public class SearchRequestDto {
 
     private String query;
-    private Integer pagesize;
+    private Integer pageSize;
     private  Integer pageNumber;
 }

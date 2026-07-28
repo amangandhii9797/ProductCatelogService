@@ -1,26 +1,26 @@
 package org.example.productcatelogservice.Controllers;
 
-
-import org.example.productcatelogservice.dtos.ProductDto;
 import org.example.productcatelogservice.dtos.SearchRequestDto;
-import org.example.productcatelogservice.services.ISeachService;
+import org.example.productcatelogservice.models.Product;
+import org.example.productcatelogservice.services.ISearchService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/search")
 public class SearchController {
 
-
-
     @Autowired
-    private ISeachService searchService;
+    private ISearchService searchService;
 
-    public ProductDto search(SearchRequestDto searchRequestDto) {
-        // Implementation for search functionality
-
-      //  searchService
-        return null;
+    @PostMapping
+    public Page<Product> searchProducts(@RequestBody SearchRequestDto searchRequestDto) {
+        return searchService.searchProducts(searchRequestDto.getQuery(), searchRequestDto.getPageSize(), searchRequestDto.getPageNumber());
     }
 }
