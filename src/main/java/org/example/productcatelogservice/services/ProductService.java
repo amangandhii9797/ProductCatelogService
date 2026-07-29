@@ -124,6 +124,10 @@ public class ProductService implements IProductService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public Product getProductBasedOnUserRole(Long productId, Long userId) {
+        return null;
+    }
 
 
 

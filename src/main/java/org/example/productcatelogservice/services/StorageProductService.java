@@ -1,12 +1,14 @@
 package org.example.productcatelogservice.services;
 
 
+import org.example.productcatelogservice.dtos.UserDto;
 import org.example.productcatelogservice.models.Product;
 import org.example.productcatelogservice.repos.ProductRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +19,10 @@ public class StorageProductService implements IProductService {
 
     @Autowired
     private ProductRepo productRepo;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
 
     @Override
     public Product getProductById(Long id) {
@@ -52,6 +58,23 @@ public class StorageProductService implements IProductService {
 
         input.setId(id);
         return productRepo.save(input);
+    }
+
+    @Override
+    public Product getProductBasedOnUserRole(Long productId, Long userId) {
+        Optional<Product> optionalProduct = productRepo.findById(productId);
+        if (optionalProduct.isPresent()) {
+            // this is where we are using service discovery
+            //call to user service and return product if got user details successfully
+            UserDto userDto = restTemplate.getForEntity("http://userservice/users/{userId}",
+                    UserDto.class,userId).getBody();
+            if (userDto !=null) {
+                System.out.println(userDto.getName());
+                return optionalProduct.get();
+            }
+        }
+
+        return null;
     }
 
     @Override

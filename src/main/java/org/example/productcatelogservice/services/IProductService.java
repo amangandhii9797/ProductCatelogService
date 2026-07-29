@@ -16,6 +16,11 @@ public interface IProductService {
     Product replaceProduct(Long id, Product product);
 
     String deleteProduct(Long id);
+
+    Product getProductBasedOnUserRole(Long productId, Long userId);
+
+
+
     
     /*
     Steps to call any Rest API

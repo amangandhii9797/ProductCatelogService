@@ -37,6 +37,13 @@ public class ProductController {
         return productDtos;
     }
 
+    @GetMapping("/{productId}/{userId}")
+    public ProductDto getProductBasedOnUserRole(@PathVariable Long productId,
+                                                @PathVariable Long userId) {
+        Product product = productService.getProductBasedOnUserRole(productId, userId);
+        return from(product);
+    }
+
     @GetMapping("{id}")
     public ResponseEntity<ProductDto> getProductById(@PathVariable("id") Long productId)
     {
